@@ -1,4 +1,3 @@
-```markdown
 # Project Overview and Evaluation Criteria
 
 This project is a web-based grid map application developed using Flask, HTML, CSS, and JavaScript. The application allows users to interactively generate a grid (with a dynamic size between 5 and 9), select a start cell (green), an end cell (red), and designate obstacles (gray). Additionally, it integrates basic reinforcement learning features by generating a random policy (with valid actions only) and evaluating state values using an iterative policy evaluation algorithm.
@@ -94,4 +93,3 @@ Below are the evaluation criteria along with their respective weightings:
    - Click the "Reset" button to clear all selections and grid values. This allows you to reconfigure the grid as needed.
 
 Enjoy exploring the grid map and experimenting with basic reinforcement learning functionalities!
-```
