@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>網格地圖</title>
+  <style>
+    table {
+      border-collapse: collapse;
+    }
+    td {
+      width: 60px;
+      height: 60px;
+      border: 1px solid #000;
+      text-align: center;
+      vertical-align: middle;
+      cursor: pointer;
+      font-size: 16px;
+      position: relative;
+    }
+    /* 起點、終點與障礙物的顏色 */
+    .start { background-color: green; }
+    .end { background-color: red; }
+    .obstacle { background-color: gray; }
+    .instruction {
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>網格地圖</h1>
+  <!-- 操作說明 -->
+  <div class="instruction">
+    <p>操作說明：</p>
+    <ul>
+      <li>請先設定網格尺寸（範圍 5 至 9），然後按下「建立網格」。</li>
+      <li>點擊網格中的單元格，第一個點選的會標示為<strong>起點</strong>（綠色）；第二個點選的會標示為<strong>終點</strong>（紅色）。</li>
+      <li>接著依序點選其他單元格，可標記最多 <strong>{{ n - 2 }}</strong> 個<strong>障礙物</strong>（灰色）。</li>
+      <li>點選下方「產生隨機策略與計算狀態價值」按鈕，將在每個非障礙物格子中根據可行動作隨機生成一個策略（上下左右箭頭），並利用策略評估計算出該狀態的價值 V(s)。</li>
+      <li>請注意，策略部分會避免選取會往邊界外或進入障礙物的行動。</li>
+      <li>若需重新設定，請點選「重置」按鈕，清除所有設定。</li>
+    </ul>
+  </div>
+
+  <!-- 設定網格尺寸 -->
+  <form method="post" action="/">
+    <label for="grid_size">請選擇網格尺寸 (5-9): </label>
+    <input type="number" name="grid_size" id="grid_size" value="{{ n }}" min="5" max="9">
+    <button type="submit">建立網格</button>
+    <button type="button" onclick="resetGrid()">重置</button>
+  </form>
+  <br>
+  
+  <!-- 新增強化式學習功能按鈕 -->
+  <button type="button" onclick="generatePolicyAndEvaluate()">產生隨機策略與計算狀態價值</button>
+  <br><br>
+  
+  <!-- 根據 n 動態生成網格 -->
+  <table id="grid">
+    {% for i in range(n) %}
+      <tr>
+        {% for j in range(n) %}
+          <td id="cell_{{ i }}_{{ j }}" onclick="cellClicked({{ i }}, {{ j }})"></td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </table>
+
+  <script>
+    let n = {{ n }};
+    let startSet = false;
+    let endSet = false;
+    let obstacleCount = 0;
+    let maxObstacles = n - 2;
+
+    // 點擊單元格設定起點、終點及障礙物
+    function cellClicked(row, col) {
+      let cell = document.getElementById("cell_" + row + "_" + col);
+      // 若該格已設定過，不做變更
+      if (cell.classList.contains("start") || cell.classList.contains("end") || cell.classList.contains("obstacle")) {
+        return;
+      }
+      if (!startSet) {
+        cell.classList.add("start");
+        startSet = true;
+      } else if (!endSet) {
+        cell.classList.add("end");
+        endSet = true;
+      } else if (obstacleCount < maxObstacles) {
+        cell.classList.add("obstacle");
+        obstacleCount++;
+      }
+    }
+
+    // 重置所有單元格設定與內容
+    function resetGrid(){
+      const cells = document.querySelectorAll("td");
+      cells.forEach(cell => {
+        cell.classList.remove("start", "end", "obstacle");
+        cell.innerHTML = "";
+      });
+      startSet = false;
+      endSet = false;
+      obstacleCount = 0;
+    }
+
+    // 產生隨機策略與利用策略評估計算狀態價值
+    function generatePolicyAndEvaluate() {
+      // 定義可用行動
+      let actions = ["↑", "↓", "←", "→"];
+      // 初始化策略與價值二維陣列
+      let policy = new Array(n);
+      let V = new Array(n);
+      for (let i = 0; i < n; i++) {
+        policy[i] = new Array(n);
+        V[i] = new Array(n);
+        for (let j = 0; j < n; j++) {
+          let cell = document.getElementById("cell_" + i + "_" + j);
+          if (cell.classList.contains("obstacle")) {
+            policy[i][j] = null;
+            V[i][j] = null;
+          } else {
+            // 取得合法行動：排除往邊界或障礙物方向的動作
+            let validActions = [];
+            for (let a of actions) {
+              let next_i = i, next_j = j;
+              if (a === "↑") {
+                next_i = i - 1;
+              } else if (a === "↓") {
+                next_i = i + 1;
+              } else if (a === "←") {
+                next_j = j - 1;
+              } else if (a === "→") {
+                next_j = j + 1;
+              }
+              // 檢查是否在邊界內
+              if (next_i < 0 || next_i >= n || next_j < 0 || next_j >= n) {
+                continue;
+              }
+              // 檢查是否為障礙物
+              let nextCell = document.getElementById("cell_" + next_i + "_" + next_j);
+              if (nextCell && nextCell.classList.contains("obstacle")) {
+                continue;
+              }
+              validActions.push(a);
+            }
+            // 從合法行動中隨機選擇（若無合法行動則設為空白，並視同停留）
+            let randAction = validActions.length > 0 ? validActions[Math.floor(Math.random() * validActions.length)] : "";
+            policy[i][j] = randAction;
+            V[i][j] = 0; // 初始價值設為 0
+          }
+        }
+      }
+      
+      // 將終點狀態的價值固定為 0
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          let cell = document.getElementById("cell_" + i + "_" + j);
+          if (cell.classList.contains("end")) {
+            V[i][j] = 0;
+          }
+        }
+      }
+      
+      // 策略評估參數設定
+      let gamma = 0.9;
+      let iterations = 50;
+      
+      // 進行迭代式策略評估
+      for (let iter = 0; iter < iterations; iter++) {
+        let newV = [];
+        for (let i = 0; i < n; i++) {
+          newV[i] = [];
+          for (let j = 0; j < n; j++) {
+            newV[i][j] = V[i][j];
+          }
+        }
+        
+        for (let i = 0; i < n; i++) {
+          for (let j = 0; j < n; j++) {
+            let cell = document.getElementById("cell_" + i + "_" + j);
+            // 障礙物與終點狀態不更新
+            if (cell.classList.contains("obstacle") || cell.classList.contains("end")) {
+              continue;
+            }
+            let action = policy[i][j];
+            let next_i = i, next_j = j;
+            if (action === "↑") {
+              next_i = i - 1;
+            } else if (action === "↓") {
+              next_i = i + 1;
+            } else if (action === "←") {
+              next_j = j - 1;
+            } else if (action === "→") {
+              next_j = j + 1;
+            }
+            // 若選擇的行動不合法（應該不會發生，但作保險檢查），則保持在原位
+            if (next_i < 0 || next_i >= n || next_j < 0 || next_j >= n) {
+              next_i = i;
+              next_j = j;
+            } else {
+              let nextCell = document.getElementById("cell_" + next_i + "_" + next_j);
+              if (nextCell && nextCell.classList.contains("obstacle")) {
+                next_i = i;
+                next_j = j;
+              }
+            }
+            newV[i][j] = -1 + gamma * V[next_i][next_j];
+          }
+        }
+        V = newV;
+      }
+      
+      // 更新每個單元格，顯示隨機策略（箭頭）與狀態價值 V(s)
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          let cell = document.getElementById("cell_" + i + "_" + j);
+          if (cell.classList.contains("obstacle")) {
+            continue;
+          }
+          let displayPolicy = policy[i][j] || "";
+          let displayValue = (V[i][j] !== null && V[i][j] !== undefined) ? V[i][j].toFixed(1) : "";
+          cell.innerHTML = displayPolicy + "<br>" + displayValue;
+        }
+      }
+    }
+  </script>
+</body>
+</html>
