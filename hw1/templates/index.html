@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="zh-Hant-TW">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>網格地圖</title>
+  <title>Grid Map</title>
   <style>
     table {
       border-collapse: collapse;
@@ -17,7 +17,7 @@
       font-size: 16px;
       position: relative;
     }
-    /* 起點、終點與障礙物的顏色 */
+    /* Colors for start, end, and obstacles */
     .start { background-color: green; }
     .end { background-color: red; }
     .obstacle { background-color: gray; }
@@ -28,34 +28,34 @@
   </style>
 </head>
 <body>
-  <h1>網格地圖</h1>
-  <!-- 操作說明 -->
+  <h1>Grid Map</h1>
+  <!-- Instructions -->
   <div class="instruction">
-    <p>操作說明：</p>
+    <p>Instructions:</p>
     <ul>
-      <li>請先設定網格尺寸（範圍 5 至 9），然後按下「建立網格」。</li>
-      <li>點擊網格中的單元格，第一個點選的會標示為<strong>起點</strong>（綠色）；第二個點選的會標示為<strong>終點</strong>（紅色）。</li>
-      <li>接著依序點選其他單元格，可標記最多 <strong>{{ n - 2 }}</strong> 個<strong>障礙物</strong>（灰色）。</li>
-      <li>點選下方「產生隨機策略與計算狀態價值」按鈕，將在每個非障礙物格子中根據可行動作隨機生成一個策略（上下左右箭頭），並利用策略評估計算出該狀態的價值 V(s)。</li>
-      <li>請注意，策略部分會避免選取會往邊界外或進入障礙物的行動。</li>
-      <li>若需重新設定，請點選「重置」按鈕，清除所有設定。</li>
+      <li>First, set the grid size (range 5 to 9) and then click "Create Grid".</li>
+      <li>Click on a cell in the grid. The first cell clicked will be marked as the <strong>Start</strong> (green); the second cell clicked will be marked as the <strong>End</strong> (red).</li>
+      <li>Then click on other cells sequentially to mark up to <strong>{{ n - 2 }}</strong> <strong>Obstacles</strong> (gray).</li>
+      <li>Click the "Generate Random Policy and Evaluate State Values" button below to randomly generate a policy (arrow indicating up, down, left, or right) for each non-obstacle cell and evaluate the state value V(s).</li>
+      <li>Note: The policy generation avoids selecting actions that would go off the grid or into an obstacle.</li>
+      <li>If you need to reset, click the "Reset" button to clear all settings.</li>
     </ul>
   </div>
 
-  <!-- 設定網格尺寸 -->
+  <!-- Set grid size -->
   <form method="post" action="/">
-    <label for="grid_size">請選擇網格尺寸 (5-9): </label>
+    <label for="grid_size">Please choose grid size (5-9): </label>
     <input type="number" name="grid_size" id="grid_size" value="{{ n }}" min="5" max="9">
-    <button type="submit">建立網格</button>
-    <button type="button" onclick="resetGrid()">重置</button>
+    <button type="submit">Create Grid</button>
+    <button type="button" onclick="resetGrid()">Reset</button>
   </form>
   <br>
   
-  <!-- 新增強化式學習功能按鈕 -->
-  <button type="button" onclick="generatePolicyAndEvaluate()">產生隨機策略與計算狀態價值</button>
+  <!-- Button for RL functionality -->
+  <button type="button" onclick="generatePolicyAndEvaluate()">Generate Random Policy and Evaluate State Values</button>
   <br><br>
   
-  <!-- 根據 n 動態生成網格 -->
+  <!-- Dynamically generate grid based on n -->
   <table id="grid">
     {% for i in range(n) %}
       <tr>
@@ -73,10 +73,10 @@
     let obstacleCount = 0;
     let maxObstacles = n - 2;
 
-    // 點擊單元格設定起點、終點及障礙物
+    // Click on a cell to set the start, end, and obstacles
     function cellClicked(row, col) {
       let cell = document.getElementById("cell_" + row + "_" + col);
-      // 若該格已設定過，不做變更
+      // If the cell is already set, do nothing
       if (cell.classList.contains("start") || cell.classList.contains("end") || cell.classList.contains("obstacle")) {
         return;
       }
@@ -92,7 +92,7 @@
       }
     }
 
-    // 重置所有單元格設定與內容
+    // Reset all cell settings and contents
     function resetGrid(){
       const cells = document.querySelectorAll("td");
       cells.forEach(cell => {
@@ -104,11 +104,11 @@
       obstacleCount = 0;
     }
 
-    // 產生隨機策略與利用策略評估計算狀態價值
+    // Generate random policy and evaluate state values using policy evaluation
     function generatePolicyAndEvaluate() {
-      // 定義可用行動
+      // Define possible actions
       let actions = ["↑", "↓", "←", "→"];
-      // 初始化策略與價值二維陣列
+      // Initialize 2D arrays for policy and value
       let policy = new Array(n);
       let V = new Array(n);
       for (let i = 0; i < n; i++) {
@@ -120,7 +120,7 @@
             policy[i][j] = null;
             V[i][j] = null;
           } else {
-            // 取得合法行動：排除往邊界或障礙物方向的動作
+            // Get valid actions: exclude moves that go off the grid or into an obstacle
             let validActions = [];
             for (let a of actions) {
               let next_i = i, next_j = j;
@@ -133,26 +133,26 @@
               } else if (a === "→") {
                 next_j = j + 1;
               }
-              // 檢查是否在邊界內
+              // Check if within boundaries
               if (next_i < 0 || next_i >= n || next_j < 0 || next_j >= n) {
                 continue;
               }
-              // 檢查是否為障礙物
+              // Check if it is an obstacle
               let nextCell = document.getElementById("cell_" + next_i + "_" + next_j);
               if (nextCell && nextCell.classList.contains("obstacle")) {
                 continue;
               }
               validActions.push(a);
             }
-            // 從合法行動中隨機選擇（若無合法行動則設為空白，並視同停留）
+            // Randomly choose from valid actions (if none, set to blank, i.e., no move)
             let randAction = validActions.length > 0 ? validActions[Math.floor(Math.random() * validActions.length)] : "";
             policy[i][j] = randAction;
-            V[i][j] = 0; // 初始價值設為 0
+            V[i][j] = 0; // Initialize value to 0
           }
         }
       }
       
-      // 將終點狀態的價值固定為 0
+      // Set the end state value to 0
       for (let i = 0; i < n; i++) {
         for (let j = 0; j < n; j++) {
           let cell = document.getElementById("cell_" + i + "_" + j);
@@ -162,11 +162,11 @@
         }
       }
       
-      // 策略評估參數設定
+      // Set policy evaluation parameters
       let gamma = 0.9;
       let iterations = 50;
       
-      // 進行迭代式策略評估
+      // Perform iterative policy evaluation
       for (let iter = 0; iter < iterations; iter++) {
         let newV = [];
         for (let i = 0; i < n; i++) {
@@ -179,7 +179,7 @@
         for (let i = 0; i < n; i++) {
           for (let j = 0; j < n; j++) {
             let cell = document.getElementById("cell_" + i + "_" + j);
-            // 障礙物與終點狀態不更新
+            // Do not update obstacles or the end state
             if (cell.classList.contains("obstacle") || cell.classList.contains("end")) {
               continue;
             }
@@ -194,7 +194,7 @@
             } else if (action === "→") {
               next_j = j + 1;
             }
-            // 若選擇的行動不合法（應該不會發生，但作保險檢查），則保持在原位
+            // If the chosen action is invalid (should not occur, but as a safeguard), remain in the current cell
             if (next_i < 0 || next_i >= n || next_j < 0 || next_j >= n) {
               next_i = i;
               next_j = j;
@@ -211,7 +211,7 @@
         V = newV;
       }
       
-      // 更新每個單元格，顯示隨機策略（箭頭）與狀態價值 V(s)
+      // Update each cell to display the random policy (arrow) and state value V(s)
       for (let i = 0; i < n; i++) {
         for (let j = 0; j < n; j++) {
           let cell = document.getElementById("cell_" + i + "_" + j);
