@@ -1,4 +1,6 @@
-# Project Overview
+# Project 
+
+<video src="static/demo.mov" controls width="640"></video>
 
 This project is a web-based grid map application developed using Flask, HTML, CSS, and JavaScript. The application allows users to interactively generate a grid (with a dynamic size between 5 and 9), select a start cell (green), an end cell (red), and designate obstacles (gray). Additionally, it integrates basic reinforcement learning features by generating a random policy (with valid actions only) and evaluating state values using an iterative policy evaluation algorithm.
 
