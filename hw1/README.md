@@ -1,8 +1,9 @@
 # Project 
 
-![Demo](static/demo.gif)
+The project is a web-based grid map application developed with Flask, HTML, CSS, and JavaScript. It lets users create a grid with a variable size between 5 and 9, choose a start and end cell, and mark obstacles. Moreover, it integrates reinforcement learning by creating a random policy and computing state values via an iterative policy evaluation method.
 
-This project is a web-based grid map application developed using Flask, HTML, CSS, and JavaScript. The application allows users to interactively generate a grid (with a dynamic size between 5 and 9), select a start cell (green), an end cell (red), and designate obstacles (gray). Additionally, it integrates basic reinforcement learning features by generating a random policy (with valid actions only) and evaluating state values using an iterative policy evaluation algorithm.
+## Demo
+![Demo](static/demo.gif)
 
 Below are the evaluation criteria along with their respective weightings:
 
@@ -66,13 +67,6 @@ Below are the evaluation criteria along with their respective weightings:
 
 # How to Use This Project
 
-## Prerequisites
-- **Python:** Make sure you have Python 3.8 or later installed.
-- **Flask:** Install Flask using pip. For example, run:
-  ```bash
-  pip install Flask
-  ```
-
 ## Installation
 1. **Clone the Repository:**
    ```bash
@@ -88,14 +82,12 @@ Below are the evaluation criteria along with their respective weightings:
    ```bash
    pip install -r requirements.txt
    ```
-
-## Running the Application
-1. **Start the Flask Server:**
+4. **Run the Application:**
    ```bash
    python app.py
    ```
-2. **Open Your Web Browser:**
-   Navigate to `http://127.0.0.1:5000` (or the specified address).
+5. **Access the Application:**
+   Open your browser and go to [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
 ## Using the Application Interface
 1. **Set Grid Size:**
