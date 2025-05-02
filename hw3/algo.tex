@@ -1,0 +1,125 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath}  % Required for advanced math environments
+\usepackage{amsfonts} % Required for \mathbb
+
+\title{NCHU-2025-spring-drl-hw3}
+\author{CHI\,HUNG\,YANG}
+\date{May 2025}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+This document describes three commonly used Multi-Armed Bandit (MAB) strategies in reinforcement learning: the $\varepsilon$-Greedy algorithm, the Upper Confidence Bound (UCB) algorithm, and the Softmax (Boltzmann) algorithm. Each balances exploration and exploitation to maximize total rewards over a limited number of decisions.
+
+\section{$\varepsilon$-Greedy Algorithm}
+\subsection{Algorithm Overview}
+The $\varepsilon$-Greedy algorithm is a straightforward exploration–exploitation strategy. At each decision round $t$:
+\begin{itemize}
+  \item With probability $1-\varepsilon$, select the arm with the highest estimated average reward (exploitation).
+  \item With probability $\varepsilon$, select an arm uniformly at random (exploration).
+\end{itemize}
+Here, $\varepsilon\in[0,1]$ represents the exploration rate, typically chosen between 0.01 and 0.1 based on the number of arms and total decision rounds.
+
+\subsection{Action Selection Probability}
+In round $t$, the probability of selecting arm $i$ is given by:
+\[
+P\bigl(a_t = i\bigr) =
+\begin{cases}
+  1 - \varepsilon + \displaystyle\frac{\varepsilon}{K}, & \text{if } i = \arg\max_{j}\hat\mu_j(t-1), \\
+  \displaystyle\frac{\varepsilon}{K},              & \text{otherwise},
+\end{cases}
+\]
+where:
+\begin{itemize}
+  \item $K$ is the total number of arms.
+  \item $\hat\mu_j(t-1)$ is the estimated average reward of arm $j$ up to round $t-1$.
+\end{itemize}
+
+\subsection{Reward Update Rule}
+When arm $i$ is selected at round $t$ and reward $r_t$ is observed, its pull count and estimated average reward are updated as follows:
+\begin{align}
+  n_i(t) &= n_i(t-1) + 1, \\
+  \hat\mu_i(t)
+    &= \hat\mu_i(t-1)
+     + \frac{1}{n_i(t)}\bigl(r_t - \hat\mu_i(t-1)\bigr).
+\end{align}
+
+\subsection{Summary of $\varepsilon$-Greedy}
+The $\varepsilon$-Greedy algorithm is widely used in MAB and other reinforcement learning scenarios requiring exploration–exploitation trade-offs due to its simplicity and low computational cost. Adjusting $\varepsilon$ or using decay strategies can further improve long-term performance.
+
+\section{Upper Confidence Bound (UCB) Algorithm}
+\subsection{Algorithm Overview}
+The UCB algorithm applies the principle of optimism in the face of uncertainty by constructing an upper confidence bound for each arm’s estimated value. At each round $t$, the arm with the highest bound is selected, naturally balancing exploration and exploitation.
+
+\subsection{UCB Index Formula}
+For arm $i$ at round $t$, the UCB index is defined as:
+\[
+\mathrm{UCB}_i(t) = \hat\mu_i(t) + \sqrt{\frac{2\ln t}{n_i(t)}},
+\]
+where:
+\begin{itemize}
+  \item $\hat\mu_i(t)$ is the estimated average reward of arm $i$ up to round $t$.
+  \item $n_i(t)$ is the number of times arm $i$ has been selected before round $t$.
+  \item $t$ is the total number of decision rounds so far.
+\end{itemize}
+
+\subsection{Pseudocode}
+\begin{verbatim}
+Initialize: for each arm i, set n_i = 0, \hat\mu_i = 0
+// Ensure each arm is tried once
+for i = 1 to K do
+  pull arm i, observe reward r
+  n_i = 1, \hat\mu_i = r
+end for
+
+for t = K+1 to T do
+  for i = 1 to K do
+    UCB_i = \hat\mu_i + sqrt((2*ln t)/n_i)
+  end for
+  select arm i* = argmax UCB_i
+  pull arm i*, observe reward r
+  n_{i*}++
+  \hat\mu_{i*} += (r - \hat\mu_{i*})/n_{i*}
+end for
+\end{verbatim}
+
+\subsection{Theoretical Guarantee}
+UCB achieves a logarithmic regret bound:
+\[
+\mathbb{E}[R(T)] = O\Bigl(\sum_{i:\Delta_i>0} \frac{\ln T}{\Delta_i} \Bigr),
+\]
+where $\Delta_i = \mu^* - \mu_i$ is the gap between the optimal arm’s mean reward and arm $i$’s mean reward.
+
+\section{Softmax (Boltzmann) Algorithm}
+\subsection{Algorithm Overview}
+The Softmax algorithm assigns a selection probability to each arm based on a Boltzmann distribution over estimated values, allowing smooth trade-off between exploration and exploitation.
+
+\subsection{Temperature Parameter}
+A temperature parameter $\tau>0$ controls the randomness:
+\begin{itemize}
+  \item As $\tau \to 0^{+}$, the selection becomes more greedy (higher-value arms get almost all probability).
+  \item As $\tau \to \infty$, the selection becomes more uniform across arms.
+\end{itemize}
+
+\subsection{Action Selection Probability}
+In round $t$, the probability of selecting arm $i$ is:
+\[
+P_i(t) = \frac{\exp\bigl(\hat\mu_i(t)/\tau\bigr)}{\sum_{j=1}^K \exp\bigl(\hat\mu_j(t)/\tau\bigr)}.
+\]
+
+\subsection{Reward Update Rule}
+After selecting arm $i$ and observing reward $r_t$, update its estimate:
+\[
+\hat\mu_i(t) = \hat\mu_i(t-1) + \frac{1}{n_i(t)}\bigl(r_t - \hat\mu_i(t-1)\bigr),
+\]where $n_i(t)$ is the pull count including this round.
+
+\subsection{Summary of Softmax}
+Softmax exploration provides a differentiable selection mechanism that smoothly interpolates between greedy and random policies, and can be tuned via the temperature parameter for desired exploration behavior.
+
+\section{Conclusion}
+This document presented the $\varepsilon$-Greedy, UCB, and Softmax algorithms for solving the Multi-Armed Bandit problem, including their motivations, formulas, and key properties. These strategies are fundamental tools in reinforcement learning for efficient decision-making under uncertainty.
+
+\end{document}
