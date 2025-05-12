@@ -4,6 +4,8 @@
 
 ### ✅ Run the provided code naive or Experience buffer reply 
 
+- [程式碼檔案](hw4-1/hw4-1.ipynb)
+
 ### 💬 Chat with ChatGPT about the code to clarify your understanding
 
 <img src="/hw4/static/hw4-1.png" alt="Chat with ChatGPT" width="400"/>
