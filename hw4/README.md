@@ -6,7 +6,7 @@
 
 ### 💬 Chat with ChatGPT about the code to clarify your understanding
 
-![Chat with ChatGPT](/hw4/static/hw4-1.png)
+<img src="/hw4/static/hw4-1.png" alt="Chat with ChatGPT" width="400"/>
 
 ### 📝 Submit a short understanding report
 
