@@ -146,6 +146,63 @@
 ## 🔁 HW4-3: Enhance DQN for random mode WITH Training Tips [30%]
 
 ### Convert the DQN model from PyTorch to either:
-Keras, or PyTorch Lightning
 
-### Bonus points for integrating training techniques to stabilize/improve learning (e.g., gradient clipping, learning rate scheduling, etc.)
+#### HW4-3：在 Random Mode 下強化 DQN 並整合訓練技巧
+
+---
+
+##### **實驗說明**
+
+本實驗（`hw4-3.ipynb`）使用 **PyTorch Lightning** 來訓練 DQN，並結合學習率調度作為優化手段。主要改進包括：
+
+- **Lightning 整合**：模組化訓練流程，提高可重現性與實驗管理效率  
+- **更深 Network 架構**：在原有的三層全連接網路基礎上，新增一層線性層，以強化特徵表徵能力  
+- **學習率調度器**：於總 epoch 的 4/5 處，將學習率減半，微調模型並穩定收斂  
+- **經驗回放 & 墻壁懲罰**：保留「程式 3.5 改良版」中增強的 experience replay 與牆壁避讓機制
+
+---
+
+##### **實驗摘要**
+
+| **項目**               | **Baseline DQN<br/>(程式 3.5 改良版)** | **Enhanced DQN<br/>(本工作)**         |
+|:-----------------------|:-------------------------------------:|:-------------------------------------:|
+| **框架**               | PyTorch                               | PyTorch Lightning                     |
+| **網路深度**           | 3 層全連接                             | 4 層全連接                             |
+| **Experience Replay**  | ✔                                     | ✔                                     |
+| **牆壁懲罰**           | ✔                                     | ✔                                     |
+| **學習率調度器**       | ✘                                     | ✔ (4/5 處 0.5×)                       |
+| **訓練管理**           | 手動                                  | 自動 (Lightning)                      |
+| **日誌**               | 手動 `print`/繪圖                     | Lightning 日誌                        |
+
+---
+
+##### **訓練結果**
+
+- **Loss 曲線**：訓練過程中，損失隨時間下降，顯示成功收斂  
+- **勝率**：在 Random Gridworld 模式下，Enhanced DQN 達到更高勝率  
+
+| **指標**               | **Baseline DQN** | **Enhanced DQN** |
+|:-----------------------|:----------------:|:----------------:|
+| **最終勝率**           | ~97%             | ~98%             |
+| **總 Epochs**          | 5 000            | 5 000            |
+| **最終學習率**         | 0.001 (固定)     | 0.0005 (衰減後)  |
+
+---
+
+##### **關鍵收穫**
+
+1. **Lightning 精簡訓練流程**  
+   - 以 `Trainer` + `LightningModule` 管理整個 loop，可快速切換參數與硬體  
+2. **深層 Q-Network**  
+   - 增加一層隱藏層，有助於捕捉更複雜的狀態—動作關係  
+3. **學習率調度**  
+   - 透過中後期衰減，避免陷入局部最小、減少後期過擬合  
+4. **牆壁懲罰**  
+   - 強化 agent 避開無效動作，提升學習效率  
+
+---
+
+##### **結論**
+
+本實驗證明：將 PyTorch Lightning、**更深網路**與**學習率調度**等訓練技巧結合，可顯著提升 DQN 在 Gridworld Random Mode 下的**性能**與**程式可維護性**。  
+

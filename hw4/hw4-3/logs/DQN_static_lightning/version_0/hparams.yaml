@@ -1,0 +1,10 @@
+batch_size: 200
+episodes: 500
+eps_decay: 0.0002
+eps_min: 0.1
+eps_start: 1.0
+gamma: 0.9
+lr: 0.001
+max_moves: 50
+mem_size: 1000
+target_freq: 1000
