@@ -187,6 +187,7 @@
 | **總 Epochs**          | 5 000            | 5 000            |
 | **最終學習率**         | 0.001 (固定)     | 0.0005 (衰減後)  |
 
+---
 <img src="/hw4/static/hw4-3.png" alt="Training Loss Curve for Enhanced DQN"/>
 
 ---
