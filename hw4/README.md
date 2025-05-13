@@ -153,7 +153,7 @@
 
 ##### **實驗說明**
 
-本實驗（`hw4-3.ipynb`）使用 **PyTorch Lightning** 來訓練 DQN，並結合學習率調度作為優化手段。主要改進包括：
+本實驗（[`hw4-3.ipynb`](https://github.com/YANGCHIHUNG/DRL/blob/main/hw4/hw4-3/hw4-3.ipynb)使用 **PyTorch Lightning** 來訓練 DQN，並結合學習率調度作為優化手段。主要改進包括：
 
 - **Lightning 整合**：模組化訓練流程，提高可重現性與實驗管理效率  
 - **更深 Network 架構**：在原有的三層全連接網路基礎上，新增一層線性層，以強化特徵表徵能力  
