@@ -2,7 +2,7 @@
 
 | 報酬曲線 (Reward) | 損失曲線 (Loss) |
 |:-----------------:|:---------------:|
-| ![](static/reward.png) | ![](/static/loss.png) |
+| ![](static/reward.png) | ![](static/loss.png) |
 
 ## 執行方式
 
